@@ -1,3 +1,7 @@
+import pytest
+from fastapi import HTTPException
+
+
 def test_root_deve_retornar_200_e_ola_mundo(client):
     # client = TestClient(app)  # Arrange
 
@@ -55,8 +59,26 @@ def test_update_user(client):
     }
 
 
+def test_update_user_not_found(client):
+    response = client.put(
+        '/users/0',
+        json={
+            'username': 'bob',
+            'email': 'bob@example.com',
+            'password': 'mynewpassword',
+        },
+    )
+    assert response.status_code == 404
+    assert response.json()['detail'] == 'User not found'
+
+
 def test_delete_user(client):
     response = client.delete('/users/1')
-
     assert response.status_code == 200
     assert response.json() == {'message': 'User delete'}
+
+
+def test_delete_user_not_found(client):
+    response = client.delete('/users/0')
+    assert response.status_code == 404
+    assert response.json()['detail'] == 'User not found'
