@@ -1,7 +1,3 @@
-import pytest
-from fastapi import HTTPException
-
-
 def test_root_deve_retornar_200_e_ola_mundo(client):
     # client = TestClient(app)  # Arrange
 
