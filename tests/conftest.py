@@ -1,3 +1,4 @@
+import factory
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import StaticPool, create_engine
@@ -23,16 +24,27 @@ def client(session):
 
 @pytest.fixture
 def user(session):
-    user = User(
-        username='Teste',
-        email='teste@test.com',
-        password=get_password_hash('testtest'),
-    )
+    password = 'testtest'
+    user = UserFactory(password=get_password_hash(password))
     session.add(user)
     session.commit()
     session.refresh(user)
 
     user.clean_password = 'testtest'
+    return user
+
+
+@pytest.fixture
+def other_user(session):
+    password = 'testtest'
+    user = UserFactory(password=get_password_hash(password))
+
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    user.clean_password = 'testtest'
+
     return user
 
 
@@ -56,3 +68,13 @@ def session():
     Session = sessionmaker(bind=engine)
     yield Session()
     Base.metadata.drop_all(engine)
+
+
+class UserFactory(factory.Factory):
+    class Meta:
+        model = User
+
+    id = factory.Sequence(lambda n: n)
+    username = factory.LazyAttribute(lambda obj: f'test{obj.id}')
+    email = factory.LazyAttribute(lambda obj: f'{obj.username}@test.com')
+    password = factory.LazyAttribute(lambda obj: f'{obj.username}@example.com')

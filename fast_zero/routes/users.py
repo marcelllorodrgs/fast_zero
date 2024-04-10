@@ -50,7 +50,7 @@ def update_user(
     user_id: int,
     user: UserSchema,
     session: Session,
-    current_user: User = Depends(get_current_user),
+    current_user: CurrentUser,
 ):
     if current_user.id != user_id:
         raise HTTPException(status_code=400, detail='Not enough permissions')
@@ -69,7 +69,7 @@ def update_user(
 def delete_user(
     user_id: int,
     session: Session,
-    current_user: User = Depends(get_current_user),
+    current_user: CurrentUser,
 ):
     if current_user.id != user_id:
         raise HTTPException(status_code=400, detail='Not enough permissions')

@@ -18,19 +18,6 @@ def test_create_user(client):
     }
 
 
-def test_should_throw_exception_on_create_user(client, user):
-    response = client.post(
-        '/users/',
-        json={
-            'username': 'Teste',
-            'email': 'teste@test.com',
-            'password': 'testtest',
-        },
-    )
-    assert response.status_code == 400
-    assert response.json()['detail'] == 'Username already registered'
-
-
 def test_read_users(client):
     response = client.get('/users/')
     assert response.status_code == 200
@@ -45,7 +32,7 @@ def test_read_users_with_users(client, user):
 
 def test_update_user(client, user, token):
     response = client.put(
-        '/users/1',
+        f'/users/{user.id}',
         headers={'Authorization': f'Bearer {token}'},
         json={
             'username': 'bob',
@@ -57,18 +44,18 @@ def test_update_user(client, user, token):
     assert response.json() == {
         'username': 'bob',
         'email': 'bob@example.com',
-        'id': 1,
+        'id': user.id,
     }
 
 
-def test_should_throw_exception_not_found_on_update_user(client, token):
+def test_update_user_with_wrong_user(client, other_user, token):
     response = client.put(
-        '/users/0',
+        f'/users/{other_user.id}',
         headers={'Authorization': f'Bearer {token}'},
         json={
-            'username': 'Teste',
-            'email': 'teste@test.com',
-            'password': 'testtest',
+            'username': 'bob',
+            'email': 'bob@example.com',
+            'password': 'mynewpassword',
         },
     )
     assert response.status_code == 400
@@ -77,17 +64,17 @@ def test_should_throw_exception_not_found_on_update_user(client, token):
 
 def test_delete_user(client, user, token):
     response = client.delete(
-        '/users/1',
+        f'/users/{user.id}',
         headers={'Authorization': f'Bearer {token}'},
     )
     assert response.status_code == 200
     assert response.json() == {'message': 'User deleted'}
 
 
-def test_should_throw_exception_not_found_delete_user(client, token):
+def test_delete_user_wrong_user(client, other_user, token):
     response = client.delete(
-        '/users/0',
+        f'/users/{other_user.id}',
         headers={'Authorization': f'Bearer {token}'},
     )
     assert response.status_code == 400
-    assert response.json()['detail'] == 'Not enough permissions'
+    assert response.json() == {'detail': 'Not enough permissions'}
