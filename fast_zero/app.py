@@ -13,7 +13,7 @@ app.include_router(todos.router)
 @app.get('/', status_code=200, response_model=Message)
 def read_root():
     """
-    Teste de leitura
+    Teste de leitura 3
     :return: Olá Mundo!
     """
     return {'message': 'Olá Mundo!'}
